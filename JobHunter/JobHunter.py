@@ -48,12 +48,12 @@ def delete_job(cursor, jobdetails):
 # Grab new jobs from a website
 def fetch_new_jobs(arg_dict):
     # Code from https://github.com/RTCedu/CNA336/blob/master/Spring2018/Sql.py
-    query = "https://jobs.github.com/positions.json?" + "location=seattle" ## Add arguments here
+    query = "https://jobs.github.com/positions.json?" + "location=seattle" ## Add arguments here #Use & after seattle to do &description=python&full_time=no this is how to chain
     jsonpage = 0
     try:
         contents = urllib.request.urlopen(query)
-        response = contents.read()
-        jsonpage = json.loads(response)
+        response = contents.read() #Loads from configuartion file
+        jsonpage = json.loads(response) # checks database, any jobs that find
     except:
         pass
     return jsonpage
@@ -78,30 +78,30 @@ def load_config_file(filename):
     return argument_dictionary
 
 # Main area of the code.
-def jobhunt(arg_dict):
+def jobhunt(arg_dict): # Important, rest are supporting functions 
     # Fetch jobs from website
-    jobpage = fetch_new_jobs(arg_dict)
+    jobpage = fetch_new_jobs(arg_dict) #gets github website and holds the json data in it
     # print (jobpage)
-    ## Add your code here to parse the job page
+    ## Add your code here to parse the job page # hint import json, use it's module converts json to a python dictionary
 
-    ## Add in your code here to check if the job already exists in the DB
+    ## Add in your code here to check if the job already exists in the DB #print like new job is found
 
     ## Add in your code here to notify the user of a new posting
 
-    ## EXTRA CREDIT: Add your code to delete old entries
+    ## EXTRA CREDIT: Add your code to delete old entries #if over a month old delete them
 
 # Setup portion of the program. Take arguments and set up the script
 # You should not need to edit anything here.
-def main():
+def main(): # Important, rest are supporting functions 
     # Connect to SQL and get cursor
     conn = connect_to_sql()
     cursor = conn.cursor()
     create_tables(cursor, "table")
     # Load text file and store arguments into dictionary
     arg_dict = load_config_file(sys.argv[1])
-    while(1):
-        jobhunt(arg_dict)
-        time.sleep(3600) # Sleep for 1h
-
+    while(1): # Infinite Loops. Only way to kill it is to crash or manually crash it. We did this as a background process/passive scraper
+        jobhunt(arg_dict) # arg_dict is argument dictionary, 
+        time.sleep(3600) # Sleep for 1h, this is ran every hour because API or web interfaces have request limits. Your reqest will get blocked.
+# Sleep does a rough cycle count, system is not entirely accurate
 if __name__ == '__main__':
     main()
