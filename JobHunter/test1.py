@@ -1,6 +1,7 @@
+  
 # This script pulls from a job website and stores positions into a database. If there is a new posting it notifies the user.
-# Fall 2019 CNA 330
-# Robin Cunanan, rtcunanan@student.rtc.edu
+# CNA 330
+# Zachary Rubin, zrubin@rtc.edu
 import mysql.connector
 import sys
 import json
@@ -9,7 +10,7 @@ import os
 import time
 
 # Connect to database
-# You may need to edit the connect function based on your local settings.
+# You should not need to edit anything in this function
 def connect_to_sql():
     conn = mysql.connector.connect(user='root', password='',
                                   host='127.0.0.1',
@@ -19,8 +20,7 @@ def connect_to_sql():
 # Create the table structure
 def create_tables(cursor, table):
     ## Add your code here. Starter code below
-    cursor.execute('''CREATE TABLE IF NOT EXISTS tablename (id INT PRIMARY KEY auto_increment, Type varchar(10), Title varchar(100), Description text,
-    Job_id varchar(33), Created_at DATE, Company varchar(100), Location varchar(50), How_to_apply varchar(100)); ''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS JOBS (id INT PRIMARY KEY auto_increment, PostDate Date, Title TEXT, Location TEXT, Description TEXT, Company TEXT, Apply_info TEXT, Salary FLOAT, RawMessage TEXT );''')
     return
 
 # Query the database.
@@ -30,10 +30,13 @@ def query_sql(cursor, query):
     return cursor
 
 # Add a new job
-def add_new_job(cursor, jobdetails):
+def add_new_job(cursor, job):
     ## Add your code here
-    query = "INSERT INTO"
-    return query_sql(cursor, query)
+    job = job[0]
+    data  = (job['created_at'], job['title'],job['location'],job['description'], job['company'], job['how_to_apply'], 'money',str(job))
+    query = 'INSERT INTO JOBS (id, PostDate, Title, Location, Description, Company, Apply_info, Salary, RawMessage)'
+    'values ("%s", "%s", "%s", "%s", "%s", "%s", "%s","%s") '
+    cursor.execute(query,data)
 
 # Check if new job
 def check_if_job_exists(cursor, jobdetails):
@@ -47,14 +50,22 @@ def delete_job(cursor, jobdetails):
     return query_sql(cursor, query)
 
 # Grab new jobs from a website
+
 def fetch_new_jobs(arg_dict):
+#    sea = "seattle"
+#    description = "description"
+#    salary = "salary"
+#    location = "location"
     # Code from https://github.com/RTCedu/CNA336/blob/master/Spring2018/Sql.py
-    query = "https://jobs.github.com/positions.json?" + "location=seattle" ## Add arguments here #Use & after seattle to do &description=python&full_time=no this is how to chain
+    query = "https://jobs.github.com/positions.json?&location=seattle"
     jsonpage = 0
+
     try:
         contents = urllib.request.urlopen(query)
-        response = contents.read() #Loads from configuartion file
-        jsonpage = json.loads(response) # checks database, any jobs that find
+        response = contents.read()
+        jsonpage = json.loads(response)
+
+
     except:
         pass
     return jsonpage
@@ -79,30 +90,30 @@ def load_config_file(filename):
     return argument_dictionary
 
 # Main area of the code.
-def jobhunt(arg_dict): # Important, rest are supporting functions 
+def jobhunt(arg_dict):
     # Fetch jobs from website
-    jobpage = fetch_new_jobs(arg_dict) #gets github website and holds the json data in it
+    return fetch_new_jobs(arg_dict)
     # print (jobpage)
-    ## Add your code here to parse the job page # hint import json, use it's module converts json to a python dictionary
+    ## Add your code here to parse the job page
 
-    ## Add in your code here to check if the job already exists in the DB #print like new job is found
+    ## Add in your code here to check if the job already exists in the DB
 
     ## Add in your code here to notify the user of a new posting
 
-    ## EXTRA CREDIT: Add your code to delete old entries #if over a month old delete them
+    ## EXTRA CREDIT: Add your code to delete old entries
 
 # Setup portion of the program. Take arguments and set up the script
 # You should not need to edit anything here.
-def main(): # Important, rest are supporting functions 
+def main():
     # Connect to SQL and get cursor
     conn = connect_to_sql()
     cursor = conn.cursor()
-    create_tables(cursor, "table")
+    create_tables(cursor, "JOBS")
     # Load text file and store arguments into dictionary
-    arg_dict = load_config_file(sys.argv[1])
-    while(1): # Infinite Loops. Only way to kill it is to crash or manually crash it. We did this as a background process/passive scraper
-        jobhunt(arg_dict) # arg_dict is argument dictionary, 
-        time.sleep(3600) # Sleep for 1h, this is ran every hour because API or web interfaces have request limits. Your reqest will get blocked.
-# Sleep does a rough cycle count, system is not entirely accurate
+    arg_dict = load_config_file([1])
+    while(1):
+        add_new_job(cursor,jobhunt(arg_dict))
+        time.sleep(3600) # Sleep for 1h
+
 if __name__ == '__main__':
     main()
