@@ -49,7 +49,7 @@ def delete_job(cursor, jobdetails):
 # Grab new jobs from a website
 def fetch_new_jobs(arg_dict):
     # Code from https://github.com/RTCedu/CNA336/blob/master/Spring2018/Sql.py
-    query = "https://jobs.github.com/positions.json?" + "location=seattle" ## Add arguments here #Use & after seattle to do &description=python&full_time=no this is how to chain
+    query = "https://jobs.github.com/positions.json?location=seattle" #"https://jobs.github.com/positions.json?" + "location=seattle" ## Add arguments here #Use & after seattle to do &description=python&full_time=no this is how to chain
     jsonpage = 0
     try:
         contents = urllib.request.urlopen(query)
@@ -82,8 +82,9 @@ def load_config_file(filename):
 def jobhunt(arg_dict): # Important, rest are supporting functions 
     # Fetch jobs from website
     jobpage = fetch_new_jobs(arg_dict) #gets github website and holds the json data in it
-    # print (jobpage)
+    # print(jobpage)
     ## Add your code here to parse the job page # hint import json, use it's module converts json to a python dictionary
+    jobpage_parsed = json.load(jobpage)
 
     ## Add in your code here to check if the job already exists in the DB #print like new job is found
 
