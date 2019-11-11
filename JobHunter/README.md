@@ -32,3 +32,4 @@ http://mysql.rjweb.org/doc.php/charcoll
 https://docs.python.org/3/library/datetime.html
 https://www.programiz.com/python-programming/datetime/strftime
 https://stackoverflow.com/questions/2511679/python-number-of-rows-affected-by-cursor-executeselect
+https://stackoverflow.com/questions/28973453/mysql2error-incorrect-string-value-xe2-x80-xa8-x09
